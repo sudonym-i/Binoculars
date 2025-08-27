@@ -41,6 +41,9 @@ class Binoculars(object):
     scores for detecting AI-generated text. The detection is based on comparing
     the perplexity of text under both models.
     
+    Models are cached at the class level to avoid reloading for multiple instances
+    with the same model configuration.
+    
     Args:
         observer_name_or_path: HuggingFace model name or path for the observer model
         performer_name_or_path: HuggingFace model name or path for the performer model  
@@ -48,6 +51,10 @@ class Binoculars(object):
         max_token_observed: Maximum number of tokens to process per text
         mode: Detection threshold mode, either 'low-fpr' or 'accuracy'
     """
+    
+    # Class-level cache for loaded models
+    _model_cache = {}
+    _tokenizer_cache = {}
     
     def __init__(self,
                  observer_name_or_path: str = "tiiuae/falcon-7b",
@@ -62,31 +69,64 @@ class Binoculars(object):
         # Set detection threshold based on mode
         self.change_mode(mode)
         
-        # Load observer model (typically base model) on first GPU/CPU
-        self.observer_model = AutoModelForCausalLM.from_pretrained(observer_name_or_path,
-                                                                   device_map={"": DEVICE_1},
-                                                                   trust_remote_code=True,
-                                                                   torch_dtype=torch.bfloat16 if use_bfloat16
-                                                                   else torch.float32,
-                                                                   token=huggingface_config["TOKEN"]
-                                                                   )
-        # Load performer model (typically instruct/chat model) on second GPU or same device
-        self.performer_model = AutoModelForCausalLM.from_pretrained(performer_name_or_path,
-                                                                    device_map={"": DEVICE_2},
-                                                                    trust_remote_code=True,
-                                                                    torch_dtype=torch.bfloat16 if use_bfloat16
-                                                                    else torch.float32,
-                                                                    token=huggingface_config["TOKEN"]
-                                                                    )
-        # Set models to evaluation mode for inference
-        self.observer_model.eval()
-        self.performer_model.eval()
-
-        # Initialize tokenizer using observer model's tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(observer_name_or_path)
-        if not self.tokenizer.pad_token:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
+        # Store model configuration
+        self.observer_name_or_path = observer_name_or_path
+        self.performer_name_or_path = performer_name_or_path
+        self.use_bfloat16 = use_bfloat16
         self.max_token_observed = max_token_observed
+        
+        # Load or retrieve cached models
+        self.observer_model = self._get_or_load_model(
+            observer_name_or_path, DEVICE_1, use_bfloat16, "observer"
+        )
+        self.performer_model = self._get_or_load_model(
+            performer_name_or_path, DEVICE_2, use_bfloat16, "performer"
+        )
+        
+        # Load or retrieve cached tokenizer
+        self.tokenizer = self._get_or_load_tokenizer(observer_name_or_path)
+
+    def _get_or_load_model(self, model_name_or_path: str, device: str, use_bfloat16: bool, model_type: str):
+        """Load model from cache or create new instance if not cached."""
+        cache_key = f"{model_name_or_path}_{device}_{use_bfloat16}_{model_type}"
+        
+        if cache_key not in self._model_cache:
+            print(f"Loading {model_type} model: {model_name_or_path}")
+            model = AutoModelForCausalLM.from_pretrained(
+                model_name_or_path,
+                device_map={"": device},
+                trust_remote_code=True,
+                torch_dtype=torch.bfloat16 if use_bfloat16 else torch.float32,
+                token=huggingface_config["TOKEN"]
+            )
+            model.eval()
+            self._model_cache[cache_key] = model
+            print(f"✓ {model_type} model loaded and cached")
+        else:
+            print(f"✓ Using cached {model_type} model: {model_name_or_path}")
+            
+        return self._model_cache[cache_key]
+    
+    def _get_or_load_tokenizer(self, model_name_or_path: str):
+        """Load tokenizer from cache or create new instance if not cached."""
+        if model_name_or_path not in self._tokenizer_cache:
+            print(f"Loading tokenizer: {model_name_or_path}")
+            tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
+            if not tokenizer.pad_token:
+                tokenizer.pad_token = tokenizer.eos_token
+            self._tokenizer_cache[model_name_or_path] = tokenizer
+            print(f"✓ Tokenizer loaded and cached")
+        else:
+            print(f"✓ Using cached tokenizer: {model_name_or_path}")
+            
+        return self._tokenizer_cache[model_name_or_path]
+
+    @classmethod
+    def clear_cache(cls):
+        """Clear all cached models and tokenizers to free memory."""
+        cls._model_cache.clear()
+        cls._tokenizer_cache.clear()
+        print("✓ Model cache cleared")
 
     def change_mode(self, mode: str) -> None:
         """Change the detection threshold mode.

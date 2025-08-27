@@ -7,3 +7,4 @@ gradio_client
 scikit-learn
 seaborn
 pandas
+flask
