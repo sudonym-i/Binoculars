@@ -1,6 +1,7 @@
 from binoculars import Binoculars
 
-bino = Binoculars()
+bino = Binoculars(observer_name_or_path="Qwen/Qwen1.5-1.8B",
+                 performer_name_or_path="Qwen/Qwen1.5-1.8B-Chat")
 
 # ChatGPT (GPT-4) output when prompted with “Can you write a few sentences about a capybara that is an astrophysicist?"
 sample_string = '''Dr. Capy Cosmos, a capybara unlike any other, astounded the scientific community with his 
