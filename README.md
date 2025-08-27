@@ -1,77 +1,74 @@
-# <img src="./assets/bino-logo.svg" width=40 style="padding-top: 0px"/>  Binoculars: Zero-Shot Detection of LLM-Generated Text [[paper]](https://arxiv.org/abs/2401.12070)[[demo]](https://huggingface.co/spaces/tomg-group-umd/Binoculars)
+# <img src="./assets/bino-logo.svg" width=40 style="padding-top: 0px"/> Accessible AI Text Detection [Work in Progress]
 
 <p align="center">
-  <img src="assets/binoculars.jpg" width="300" height="300" alt="ool Binoculars with Falcon on Top">
+  <img src="assets/binoculars.jpg" width="300" height="300" alt="Binoculars detecting AI text">
 </p>
 
-We introduce Binoculars, a state-of-the-art method for detecting AI-generated text. Binoculars is a
-zero-shot and domain-agnostic (requires no training data) method. It is based on a simple idea: most
-decoder-only, causal language models have a huge overlap in pretraining datasets, for e.g. Common Crawl, Pile, etc.
-More details about the method and results can be found in our paper **Spotting LLMs with Binoculars: Zero-Shot
-Detection of Machine-Generated Text**.
+**A vision for making AI text detection as accessible as AI text generation.**
 
-## Getting Started
+This is a fork of the original [Binoculars](https://github.com/ahans30/Binoculars) project, with the goal of creating an accessible AI text detection tool for everyday users. This project is currently **under active development** and exploring different approaches to achieve this vision.
 
-### Installation
+## The Vision
 
-To run the implementation of Binoculars, you can clone this repository and install the package using pip. This code was
-developed and tested on Python This code was developed and tested with Python 3.9. To install the package, run the
-following commands:
+As AI text generation becomes increasingly accessible, the ability to detect AI-generated content should be equally accessible. This project aims to combat the negative impacts that undetected AI-generated text can have on society and academia by eventually providing everyone with a free, easy-to-use detection tool.
 
-```bash
-$ git clone https://github.com/ahans30/Binoculars.git
-$ cd Binoculars
-$ pip install -e .
-```
+**Long-term Goal**: Create a web application that allows anyone to detect AI-generated text without technical knowledge, expensive hardware, or payment barriers.
 
-### Usage
+## Current Status
 
-Please note, this implementation comes with a fixed global threshold that is used to classify the input as AI-generated
-or not. This threshold is selected using _Falcon-7B_ and _Falcon-7B-Instruct_ models for scoring. If you want to
-use different scoring models, you can pass it as an argument to the `Binoculars` class. Please read the paper for more
-details about the Binoculars work.
+🚧 **This project is in early development** 🚧
 
-To detect AI-generated text, please use the following code snippet:
+We're exploring several approaches:
+- **Web Application**: Hosted service that runs detection on cloud infrastructure
+- **User Experience**: Simple, intuitive interface requiring no technical knowledge
+- **Accessibility**: Free access model (funding/sustainability model still being determined)
+- **Performance**: Optimizing models to run efficiently on limited server resources
 
-```python
-from binoculars import Binoculars
+## What We're Working Toward
 
-bino = Binoculars()
+- **Zero-barrier access**: No downloads, installations, or technical setup
+- **Instant results**: Paste text, get immediate detection results
+- **Free to use**: No subscriptions, API fees, or usage limits (pending funding solutions)
+- **Privacy-focused**: Minimal data retention and secure processing
+- **Broad accessibility**: Usable by students, educators, journalists, researchers, and curious individuals
 
-# ChatGPT (GPT-4) output when prompted with “Can you write a few sentences about a capybara that is an astrophysicist?"
-sample_string = '''Dr. Capy Cosmos, a capybara unlike any other, astounded the scientific community with his 
-groundbreaking research in astrophysics. With his keen sense of observation and unparalleled ability to interpret 
-cosmic data, he uncovered new insights into the mysteries of black holes and the origins of the universe. As he 
-peered through telescopes with his large, round eyes, fellow researchers often remarked that it seemed as if the 
-stars themselves whispered their secrets directly to him. Dr. Cosmos not only became a beacon of inspiration to 
-aspiring scientists but also proved that intellect and innovation can be found in the most unexpected of creatures.'''
+## Current Challenges
 
-print(bino.compute_score(sample_string))  # 0.75661373
-print(bino.predict(sample_string))  # 'Most likely AI-Generated'
-```
+- **Hosting costs**: Running AI models requires computational resources
+- **Funding model**: Exploring sustainable ways to offer free service
+- **Technical optimization**: Balancing accuracy with computational efficiency
+- **User experience design**: Making detection results clear and actionable
+- **Scaling**: Handling potentially high user demand
 
-In the above code, user can also pass a `list` of `str` to `compute_score` and `predict` methods to get results for
-the entire batch of samples.
+## How to Help
 
-### Demo
+This project needs contributors who share the vision of democratizing AI detection:
 
-We have also made a demo available to predict AI-generated text interactively with a simple UI
-using [gradio](https://github.com/gradio-app/gradio). You can run the demo using the following command:
+- **Developers**: Help optimize models for efficiency and build web infrastructure
+- **UX/UI Designers**: Design intuitive interfaces for non-technical users
+- **Researchers**: Improve detection accuracy and reduce computational requirements
+- **Community**: Spread awareness and provide feedback on the vision
+- **Funding/Business**: Help solve the sustainability challenge
 
-```bash
-$ python app.py
-```
+## Current State
 
-## Limitations
+The code in this repository is based on the original Binoculars research but is being modified and optimized. Right now, it can be run locally by technical users, but this is not the end goal.
 
-All AI-generated text detectors aim for accuracy, but none are perfect and can have multiple failure modes (e.g.,
-Binoculars is more proficient in detecting English language text compared to other languages). This implementation is
-for academic purposes only and should not be considered as a consumer product. We also strongly caution against using
-Binoculars (or any detector) without human supervision.
+## Vision vs. Reality
 
-## Cite our work
+**What we envision**: A simple website where anyone can paste text and instantly know if it's AI-generated.
 
-If you find this work useful, please cite our paper:
+**Where we are now**: A research codebase that requires technical knowledge to use.
+
+**The gap**: We're working to bridge this gap through web development, infrastructure planning, and community building.
+
+## Stay Updated
+
+This project is evolving rapidly. Check back for updates as we work toward making AI text detection truly accessible to everyone.
+
+## Credits
+
+This project builds upon the excellent research by Hans et al.:
 
 ```bibtex
 @misc{hans2024spotting,
@@ -83,4 +80,10 @@ If you find this work useful, please cite our paper:
       primaryClass={cs.CL}
 }
 ```
+
+Original Binoculars: [GitHub](https://github.com/ahans30/Binoculars) | [Paper](https://arxiv.org/abs/2401.12070)
+
+---
+
+*This tool is provided for educational and research purposes. Always use responsibly and consider multiple sources of evidence when evaluating content authenticity.*
 
