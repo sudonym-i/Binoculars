@@ -1,4 +1,3 @@
-# <img src="./assets/bino-logo.svg" width=40 style="padding-top: 0px"/> Accessible AI Text Detection [Work in Progress]
 
 <p align="center">
   <img src="assets/binoculars.jpg" width="300" height="300" alt="Binoculars detecting AI text">
